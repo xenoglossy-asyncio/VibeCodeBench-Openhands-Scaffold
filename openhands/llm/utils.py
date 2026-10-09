@@ -34,6 +34,16 @@ def fetch_registry_model(llm_config: LLMConfig) -> LLM:
 
         if llm_config.reasoning_effort is not None:
             config_kwargs["reasoning_effort"] = llm_config.reasoning_effort
+            # Anthropic-style endpoints read effort from compute_effort.
+            config_kwargs["compute_effort"] = llm_config.reasoning_effort
+
+        # Route requests through a custom endpoint (LLM_BASE_URL/LLM_API_KEY).
+        if llm_config.base_url:
+            config_kwargs["custom_endpoint"] = llm_config.base_url
+            if llm_config.api_key is not None:
+                config_kwargs["custom_api_key"] = (
+                    llm_config.api_key.get_secret_value()
+                )
 
         if "xai" in llm_config.model.strip().lower():
             config_kwargs["sync_client"] = True
